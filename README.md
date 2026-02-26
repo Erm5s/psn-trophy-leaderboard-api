@@ -1,6 +1,6 @@
 # 🏆 psn-trophy-leaderboard-api
 
-> **Projet en cours de développement** > Ce projet est actuellement en phase de construction active.
+> **Projet en cours de développement** Ce projet est actuellement en phase de construction active.
 
 ## Présentation
 Un moteur de classement conçu pour une communauté de chasseurs de trophée. 
@@ -25,10 +25,10 @@ Ce projet s'appuie sur des outils open-source de qualité :
 - **Langage** : TypeScript
 
 ## État d'avancement
-# Finalisé :
+### Finalisé :
 - Authentification OAuth2 & Rotation des Tokens
 - Modèle de base de données (Joueurs / Jeux)
-# En cours :
+### En cours :
 - Importation automatique du barème CSV
 - Calculateur de score automatique
 - Système de file d'attente 
