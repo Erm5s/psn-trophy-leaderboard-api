@@ -1,0 +1,27 @@
+{
+  "name": "psnapi",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "prisma": "^7.4.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/adapter-libsql": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "express": "^5.2.1",
+    "psn-api": "^2.17.0"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch run src/index.ts"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
+}

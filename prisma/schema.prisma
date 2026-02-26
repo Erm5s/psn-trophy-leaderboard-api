@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model SystemConfig {
+  id           Int      @id @default(1)
+  refreshToken String?
+  updatedAt    DateTime @updatedAt
+}
+
+model Player {
+  id           String @id
+  psn          String @unique
+  discord      String?
+  totalPoints  Int?
+  lastSync     DateTime?
+  completions  Completion[]
+}
+
+model Game {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  points      Int           @default(0)
+  versions    GameVersion[]
+  completions Completion[]
+}
+
+model GameVersion {
+  id     String @id
+  gameId Int
+  game   Game   @relation(fields: [gameId], references: [id])
+}
+
+model Completion {
+  id            Int     @id @default(autoincrement())
+  playerId      String
+  gameId        Int
+  mainGameDone  Boolean @default(false)
+  dlcsDoneCount Int     @default(0)
+
+  player        Player  @relation(fields: [playerId], references: [id])
+  game          Game    @relation(fields: [gameId], references: [id])
+
+  @@unique([playerId, gameId]) // Sécurité : 1 seule ligne par jeu par joueur
+}
