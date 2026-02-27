@@ -28,6 +28,7 @@ model Player {
 
 model Game {
   id         Int          @id @default(autoincrement())
+  npCommId   String       @unique
   name       String
   points     Int?
   difficulty Int?

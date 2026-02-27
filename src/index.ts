@@ -19,5 +19,7 @@ app.route('/players/:id')
     .get(player.get_one) // pseudo
     .post(player.create_one) // pseudo
     .patch(player.update_one) // id
-    .delete(player.delete_one) // ids
+    .delete(player.delete_one) // id
+app.route('/players/:id/synch')
+    .post(player.synch_games)
 

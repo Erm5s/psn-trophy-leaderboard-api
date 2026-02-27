@@ -3,7 +3,7 @@ import { prisma } from '../db';
 import { Prisma } from '../../src/generated/prisma/client';
 import { AuthService } from '../authService';
 import { NotFoundError } from '../error';
-import {getProfileFromUserName} from "psn-api";
+import {getProfileFromUserName, getUserTitles} from "psn-api";
 
 
 // GET /players
@@ -106,5 +106,69 @@ export async function delete_one(req: Request, res: Response) {
             throw new NotFoundError('Joueur inexistant');
         }
         throw err;
+    }
+}
+
+// POST /players/:id/sync"
+export async function synch_games(req: Request, res: Response) {
+    try {
+        // Recherche du joueur
+        const id = String(req.params.id);
+        const player = await prisma.player.findUnique({
+            where: { psnId: id }
+        });
+
+        if (!player) {
+            return res.status(404).json({ error: "Joueur non trouvé" });
+        }
+
+        // Récupérer le token d'authentification
+        const authorization = await AuthService.getAuth();
+
+        // Obtention de la liste de jeu
+        const response = await getUserTitles(authorization, player.accountId, { limit: 250 });
+        const games = response.trophyTitles;
+        let newGamesCount = 0;
+
+        for (const game of games) {
+            // Enregistrement des jeux si non-existant dans la DB
+            const gameInDb = await prisma.game.upsert({
+                where: { npCommId: game.npCommunicationId },
+                update: {
+                    name: game.trophyTitleName
+                },
+                create: {
+                    name: game.trophyTitleName,
+                    npCommId: game.npCommunicationId,
+                }
+            });
+
+            await prisma.playerGame.upsert({
+                where: {
+                    playerId_gameId: {
+                        playerId: player.id,
+                        gameId: gameInDb.id
+                    }
+                },
+                update: {
+                    progress: game.progress,
+                },
+                create: {
+                    playerId: player.id,
+                    gameId: gameInDb.id,
+                    progress: game.progress
+                }
+            });
+        }
+
+        res.json({
+            message: "Synchronisation terminée",
+            player: player.psnId,
+            processedGames: games.length,
+        });
+
+    } catch (error) {
+        console.error("Erreur Synchro:", error);
+        res.status(500).json({ error: "Échec de la synchronisation avec Sony" });
     }
 }
