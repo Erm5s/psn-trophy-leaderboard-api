@@ -17,37 +17,29 @@ model SystemConfig {
 }
 
 model Player {
-  id           String @id
-  psn          String @unique
-  discord      String?
-  totalPoints  Int?
-  lastSync     DateTime?
-  completions  Completion[]
+  id        Int          @id @default(autoincrement())
+  accountId String       @unique
+  psnId     String       @unique
+  discordId String?
+  points    Int?
+  lastSync  DateTime?
+  games     PlayerGame[]
 }
 
 model Game {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
-  points      Int           @default(0)
-  versions    GameVersion[]
-  completions Completion[]
+  id         Int          @id @default(autoincrement())
+  name       String
+  points     Int?
+  difficulty Int?
+  players    PlayerGame[]
 }
 
-model GameVersion {
-  id     String @id
-  gameId Int
-  game   Game   @relation(fields: [gameId], references: [id])
-}
+model PlayerGame {
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId Int
+  game     Game   @relation(fields: [gameId], references: [id])
+  gameId   Int
+  progress Int    @default(0)
 
-model Completion {
-  id            Int     @id @default(autoincrement())
-  playerId      String
-  gameId        Int
-  mainGameDone  Boolean @default(false)
-  dlcsDoneCount Int     @default(0)
-
-  player        Player  @relation(fields: [playerId], references: [id])
-  game          Game    @relation(fields: [gameId], references: [id])
-
-  @@unique([playerId, gameId]) // Sécurité : 1 seule ligne par jeu par joueur
+  @@id([playerId, gameId])
 }

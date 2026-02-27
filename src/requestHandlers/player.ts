@@ -18,7 +18,7 @@ export async function get_all(req: Request, res: Response) {
 export async function get_one(req: Request, res: Response) {
     const psn = String(req.params.id);
     const player = await prisma.player.findUnique({
-        where: { psn }
+        where: { psnId: psn }
     });
 
     if (!player) {
@@ -40,14 +40,14 @@ export async function create_one(req: Request, res: Response) {
 
         // Vérification de l'existance dans la DB
         const existingPlayer = await prisma.player.findUnique({
-            where: { id: profile.accountId }
+            where: { accountId: profile.accountId }
         });
 
         if (!existingPlayer) {
             const player = await prisma.player.create({
                 data: {
-                    id: profile.accountId,
-                    psn: profile.onlineId,
+                    accountId: profile.accountId,
+                    psnId: profile.onlineId,
                 }
             });
 
@@ -78,7 +78,7 @@ export async function update_one(req: Request, res: Response) {
     try {
         const id = String(req.params.id);
         const player = await prisma.player.update({
-            where: { id },
+            where: { accountId : id },
             data: req.body
         });
 
@@ -97,7 +97,7 @@ export async function delete_one(req: Request, res: Response) {
     try {
         const id = String(req.params.id);
         await prisma.player.delete({
-            where: { id }
+            where: { accountId : id }
         });
         console.log("Joueur supprimé : " + id);
         res.status(204).send();
