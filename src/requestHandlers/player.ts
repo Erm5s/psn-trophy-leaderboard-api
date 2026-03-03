@@ -5,6 +5,32 @@ import { AuthService } from '../authService';
 import { NotFoundError } from '../error';
 import {getProfileFromUserName, getUserTitles} from "psn-api";
 
+export async function registerPlayerLogic(psnUsername: string) {
+    const authorization = await AuthService.getAuth();
+
+    // Vérification de l'existence sur le PSN
+    const profileResponse = await getProfileFromUserName(authorization, psnUsername);
+    const profile = profileResponse.profile;
+
+    // Vérification en DB
+    const existingPlayer = await prisma.player.findUnique({
+        where: { accountId: profile.accountId }
+    });
+
+    if (existingPlayer) {
+        return { success: false, message: "Joueur déjà existant", player: existingPlayer };
+    }
+
+    // Création
+    const newPlayer = await prisma.player.create({
+        data: {
+            accountId: profile.accountId,
+            psnId: profile.onlineId,
+        }
+    });
+
+    return { success: true, message: "Joueur enregistré", player: newPlayer };
+}
 
 // GET /players
 export async function get_all(req: Request, res: Response) {
