@@ -5,32 +5,43 @@ import { AuthService } from '../authService';
 import { NotFoundError } from '../error';
 import {getProfileFromUserName, getUserTitles} from "psn-api";
 
-export async function registerPlayerLogic(psnUsername: string) {
+export async function registerPlayer(psnName: string, discordId: string) {
     const authorization = await AuthService.getAuth();
 
-    // Vérification de l'existence sur le PSN
-    const profileResponse = await getProfileFromUserName(authorization, psnUsername);
+    // Vérification de l'existence du compte PSN
+    const profileResponse = await getProfileFromUserName(authorization, psnName);
     const profile = profileResponse.profile;
+    console.log(profile);
 
-    // Vérification en DB
-    const existingPlayer = await prisma.player.findUnique({
-        where: { accountId: profile.accountId }
+    // Vérification de l'existence du compte PSN ou Discord dans la DB
+    const existing = await prisma.player.findFirst({
+        where: {
+            OR: [
+                { psnId: profile.accountId },
+                { discordId: discordId }
+            ]
+        }
     });
 
-    if (existingPlayer) {
-        return { success: false, message: "Joueur déjà existant", player: existingPlayer };
+    if (existing) {
+        if (existing.discordId === discordId) {
+            return { success: false, message: `Tu as déjà lié un compte PSN : **${existing.psnName}**` };
+        }
+        return { success: false, message: "Ce compte PSN est déjà utilisé par un autre membre." };
     }
 
     // Création
     const newPlayer = await prisma.player.create({
         data: {
-            accountId: profile.accountId,
-            psnId: profile.onlineId,
+            discordId,
+            psnId: profile.accountId,
+            psnName: profile.onlineId,
         }
     });
 
-    return { success: true, message: "Joueur enregistré", player: newPlayer };
+    return { success: true, message: "Joueur enregistré" };
 }
+
 
 // GET /players
 export async function get_all(req: Request, res: Response) {
@@ -66,14 +77,15 @@ export async function create_one(req: Request, res: Response) {
 
         // Vérification de l'existance dans la DB
         const existingPlayer = await prisma.player.findUnique({
-            where: { accountId: profile.accountId }
+            where: { psnId: profile.accountId }
         });
 
         if (!existingPlayer) {
             const player = await prisma.player.create({
                 data: {
-                    accountId: profile.accountId,
-                    psnId: profile.onlineId,
+                    psnId: profile.accountId,
+                    psnName: profile.onlineId,
+                    discordId: profile.onlineId
                 }
             });
 
@@ -104,7 +116,7 @@ export async function update_one(req: Request, res: Response) {
     try {
         const id = String(req.params.id);
         const player = await prisma.player.update({
-            where: { accountId : id },
+            where: { psnId : id },
             data: req.body
         });
 
@@ -123,7 +135,7 @@ export async function delete_one(req: Request, res: Response) {
     try {
         const id = String(req.params.id);
         await prisma.player.delete({
-            where: { accountId : id }
+            where: { psnId : id }
         });
         console.log("Joueur supprimé : " + id);
         res.status(204).send();
@@ -152,7 +164,7 @@ export async function synch_games(req: Request, res: Response) {
         const authorization = await AuthService.getAuth();
 
         // Obtention de la liste de jeu
-        const response = await getUserTitles(authorization, player.accountId, { limit: 250 });
+        const response = await getUserTitles(authorization, player.psnId, { limit: 250 });
         const games = response.trophyTitles;
         let newGamesCount = 0;
 

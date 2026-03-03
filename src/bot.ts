@@ -17,12 +17,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     // command: /register <psn_id>
     if (interaction.commandName === 'register') {
-        const psnId = interaction.options.getString('psn_id')!;
+        const psnName = interaction.options.getString('psn')!;
+        const discordId = interaction.user.id;
         await interaction.deferReply();
     
         try {
-            const result = await player.registerPlayer(psnId);
-            await interaction.editReply(result.success ? `${result.message} : **${result.player.psnId}**` : `${result.message}`);
+            const res = await player.registerPlayer(psnName, discordId);
+            await interaction.editReply(res.success ? `${res.message} : **${psnName}**` : `${res.message}`);
         } catch (e) {
             await interaction.editReply("Ce compte PSN n'existe pas.");
         }

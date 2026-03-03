@@ -1,6 +1,7 @@
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 const botName = "Bot DTP";
 
+// Liste des commandes
 const commands = [
 // command: /register <psn_id>
     new SlashCommandBuilder()

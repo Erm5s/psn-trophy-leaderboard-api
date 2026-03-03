@@ -18,9 +18,9 @@ model SystemConfig {
 
 model Player {
   id        Int          @id @default(autoincrement())
-  accountId String       @unique
   psnId     String       @unique
-  discordId String?
+  psnName   String       @unique
+  discordId String       @unique
   points    Int?
   lastSync  DateTime?
   games     PlayerGame[]
