@@ -20,7 +20,10 @@
   },
   "scripts": {
     "deploy": "bun run src/deploy.ts",
-    "bot": "bun run --watch src/bot.ts"
+    "bot": "bun run --watch src/bot.ts",
+    "reset": "bunx prisma db push --force-reset",
+    "push": "bunx prisma db push",
+    "generate": "bunx prisma generate"
   },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
