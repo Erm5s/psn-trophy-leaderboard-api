@@ -27,7 +27,7 @@ export async function registerPlayer(psnName: string, discordId: string) {
         if (existing.discordId === discordId) {
             return { success: false, message: `Tu as déjà lié un compte PSN : **${existing.psnName}**` };
         }
-        return { success: false, message: "Ce compte PSN est déjà utilisé par un autre membre." };
+        return { success: false, message: "Ce compte PSN est utilisé par un autre membre." };
     }
 
     // Création
@@ -170,6 +170,7 @@ export async function synch_games(req: Request, res: Response) {
 
         for (const game of games) {
             // Enregistrement des jeux si non-existant dans la DB
+            /*
             const gameInDb = await prisma.game.upsert({
                 where: { npCommId: game.npCommunicationId },
                 update: {
@@ -180,6 +181,7 @@ export async function synch_games(req: Request, res: Response) {
                     npCommId: game.npCommunicationId,
                 }
             });
+            
 
             await prisma.playerGame.upsert({
                 where: {
@@ -197,6 +199,7 @@ export async function synch_games(req: Request, res: Response) {
                     progress: game.progress
                 }
             });
+            */
         }
 
         res.json({

@@ -27,12 +27,21 @@ model Player {
 }
 
 model Game {
-  id         Int          @id @default(autoincrement())
-  npCommId   String       @unique
+  id         Int            @id @default(autoincrement())
   name       String
   points     Int?
   difficulty Int?
+  npCommIds  GameNpCommId[]
   players    PlayerGame[]
+}
+
+model GameNpCommId {
+  id       Int    @id @default(autoincrement())
+  npCommId String @unique
+  platform String?
+  version  String?
+  game     Game   @relation(fields: [gameId], references: [id])
+  gameId   Int
 }
 
 model PlayerGame {

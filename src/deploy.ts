@@ -3,7 +3,7 @@ const botName = "Bot DTP";
 
 // Liste des commandes
 const commands = [
-// command: /register <psn_id>
+// command: /register <psn>
     new SlashCommandBuilder()
         .setName('register')
         .setDescription('Association d\'un compte PSN au ' + botName)
